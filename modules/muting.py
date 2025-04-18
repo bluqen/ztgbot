@@ -4,7 +4,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Callb
 
 from datetime import datetime, timedelta
 
-from utils.chat import is_admin, is_bot
+from utils.chat import is_admin, is_bot, has_admin_permission
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -13,6 +13,7 @@ logging.basicConfig(
 
 async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
     target_user = None
     username = None
 
@@ -53,6 +54,8 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if target_user:
         if await is_bot(update, context, target_user.id):
             await update.message.reply_text("I will not mute myself, thank you.")
+        elif not has_admin_permission(context, chat_id, user_id, "can_restrict_members"):
+            await update.message.reply_text("If you can't do it, I can't")
         elif not await is_admin(update, context, target_user.id):
             await update.message.reply_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for how long?", reply_markup=reply_markup, parse_mode="HTML")
         else:
