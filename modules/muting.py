@@ -4,7 +4,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Callb
 
 from datetime import datetime, timedelta
 
-from utils.chat import is_admin, is_bot, has_admin_permission
+from utils.chat import is_admin, is_bot, has_admin_permission, has_user_restriction
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -109,10 +109,9 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     if target_user:
         if await is_bot(update, context, target_user.id):
-            await update.message.reply_text("I'm probably not unmuted if you can see this.")
+            await update.message.reply_text("I was probably not muted if you can see this.")
         if await has_admin_permission(context, chat_id, user_id, permission_required):
-            member = await context.bot.get_chat_member(chat_id, target_user.id)
-            if member.can_send_messages:
+            if not has_user_restriction(context, chat_id, target_user.id, "can_send_messages"):
                 await update.message.reply_text("This user isn't muted though.")
             else:
                 await update.message.reply_text(f"Unmuted <a href='tg://user?id={target_user.id}'>{username}!</a>")

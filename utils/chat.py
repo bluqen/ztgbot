@@ -1,4 +1,4 @@
-from telegram import ChatMemberAdministrator, ChatMemberOwner
+from telegram import ChatMemberAdministrator, ChatMemberOwner, ChatMemberRestricted
 from telegram.ext import ContextTypes
 
 async def has_admin_permission(context: ContextTypes.DEFAULT_TYPE, chat_id: int, user_id: int, permission: str) -> bool:
@@ -35,3 +35,24 @@ async def is_bot(update, context, user_id=None):
     bot_id = context.bot.id
     user_id = user_id or update.effective_user.id
     return bot_id == user_id
+
+async def has_user_restriction(
+    context: ContextTypes.DEFAULT_TYPE,
+    chat_id: int,
+    user_id: int,
+    restriction: str
+) -> bool:
+    try:
+        member = await context.bot.get_chat_member(chat_id, user_id)
+
+        # Only restricted users can have restrictions
+        if isinstance(member, ChatMemberRestricted):
+            # Check if the attribute exists and return its value
+            return not getattr(member, restriction, True)
+
+        # Admins/members usually have all permissions
+        return False
+
+    except Exception as e:
+        print(f"Error checking restriction: {e}")
+        return False
