@@ -33,7 +33,7 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
             member = await context.bot.get_chat_member(chat_id, f"@{username}")
             target_user = member.user
         except Exception as e:
-            await update.message.reply_text(f"Couldn't find @{username} in this chat.")
+            await update.message.reply_text(f"Couldn't find @{username} in this chat., {e}")
             return
         
 
