@@ -29,35 +29,14 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         username = target_user.username or target_user.first_name
         if target_user.username:
             username="@" + username
-    
-        """    elif context.args:
-                username = context.args[0].lstrip('@')
-                try:
-                    member = await context.bot.get_chat_member(chat_id, f"@{username}")
-                    target_user = member.user
-                except Exception as e:
-                    await update.message.reply_text(f"Couldn't find @{username} in this chat., {e}")
-                    return
-                
 
-                entities = list(update.message.parse_entities([MessageEntity.TEXT_MENTION]))
-                if len(entities) > 0:
-                    ent = entities[0]
-                else:
-                    ent = None
-
-                if ent:
-                    target_user = ent.user
-                else:
-                    if context.args[0][0] == "@":
-                        await update.message.reply_text("I don't think I'm able to get this user, it'll be easier if you could reply to their message.")"""
     else:
         await update.message.reply_text("Reply to the user's message with /mute")
         return
     if target_user:
         if await is_bot(update, context, target_user.id):
             await update.message.reply_text("I will not mute myself, thank you.")
-        if await has_admin_permission(context, chat_id, user_id, permission_required):
+        elif await has_admin_permission(context, chat_id, user_id, permission_required):
             if not await is_admin(update, context, target_user.id):
                 await update.message.reply_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for how long?", reply_markup=reply_markup, parse_mode="HTML")
             else:
@@ -83,34 +62,13 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if target_user.username:
             username="@" + username
 
-        """    elif context.args:
-                username = context.args[0].lstrip('@')
-                try:
-                    member = await context.bot.get_chat_member(chat_id, f"@{username}")
-                    target_user = member.user
-                except Exception as e:
-                    await update.message.reply_text(f"Couldn't find @{username} in this chat., {e}")
-                    return
-                
-
-                entities = list(update.message.parse_entities([MessageEntity.TEXT_MENTION]))
-                if len(entities) > 0:
-                    ent = entities[0]
-                else:
-                    ent = None
-
-                if ent:
-                    target_user = ent.user
-                else:
-                    if context.args[0][0] == "@":
-                        await update.message.reply_text("I don't think I'm able to get this user, it'll be easier if you could reply to their message.")"""
     else:
         await update.message.reply_text("Reply to the user's message with /unmute")
         return
     if target_user:
         if await is_bot(update, context, target_user.id):
             await update.message.reply_text("I was probably not muted if you can see this.")
-        if await has_admin_permission(context, chat_id, user_id, permission_required):
+        elif await has_admin_permission(context, chat_id, user_id, permission_required):
             if not has_user_restriction(context, chat_id, target_user.id, "can_send_messages"):
                 await update.message.reply_text("This user isn't muted though.")
             else:
@@ -129,6 +87,11 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         InlineKeyboardButton("+1 hour", callback_data="add_an_hr")
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
+
+    unmute_keyboard = [[
+        InlineKeyboardButton("Unmute", callback_data="unmute")
+    ]]
+    unmute_markup = InlineKeyboardMarkup(unmute_keyboard)
 
     query = update.callback_query
     await query.answer()  # Acknowledge the callback query
@@ -153,15 +116,37 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 chat_id=update.effective_chat.id,
                 user_id=target_user.id,
                 permissions=ChatPermissions(can_send_messages=False),
-                until_date=until
+                until_date=until,
+                reply_markup=unmute_markup
             )
         else:
             await query.edit_message_text(f"Muted <a href='tg://user?id={target_user.id}'>{username}</a>!", parse_mode="HTML")
             await context.bot.restrict_chat_member(
                 chat_id=update.effective_chat.id,
                 user_id=target_user.id,
-                permissions=ChatPermissions(can_send_messages=False)
+                permissions=ChatPermissions(can_send_messages=False),
+                reply_markup=unmute_markup
             )
+
+    if query.data == "unmute":
+        user = query.from_user
+        chat = query.message.chat
+        permission_required = "can_restrict_members"
+
+        # Get ChatMember object
+        chat_member = await context.bot.get_chat_member(chat.id, user.id)
+        if await has_admin_permission(context, chat.id, user.id, permission_required):
+            if not has_user_restriction(context, chat.id, target_user.id, "can_send_messages"):
+                await query.edit_message_text("This user isn't muted though.")
+            else:
+                await query.edit_message_text(f"Unmuted <a href='tg://user?id={target_user.id}'>{username}!</a>", parse_mode="HTML")
+                await context.bot.restrict_chat_member(
+                    chat_id=update.effective_chat.id,
+                    user_id=target_user.id,
+                    permissions=ChatPermissions(can_send_messages=True)
+                )
+        else:
+            await query.answer(f"If you can't do it, I can't\nYou'll need permission: `{permission_required}`", parse_mode="MarkdownV2", show_alert=True)
 
 mute_handler = CommandHandler("mute", mute)
 mute_button_handler = CallbackQueryHandler(button)
