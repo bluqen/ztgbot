@@ -54,13 +54,15 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if target_user:
         if await is_bot(update, context, target_user.id):
             await update.message.reply_text("I will not mute myself, thank you.")
-        elif not has_admin_permission(context, chat_id, user_id, "can_restrict_members"):
-            await update.message.reply_text("If you can't do it, I can't")
-        elif not await is_admin(update, context, target_user.id):
-            await update.message.reply_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for how long?", reply_markup=reply_markup, parse_mode="HTML")
+        if has_admin_permission(context, chat_id, user_id, "can_restrict_members"):
+            if not await is_admin(update, context, target_user.id):
+                await update.message.reply_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for how long?", reply_markup=reply_markup, parse_mode="HTML")
+            else:
+                await update.message.reply_text("I can't mute an admin, unfortunately.")
+            print("do")
         else:
-            await update.message.reply_text("I can't mute an admin, unfortunately.")
-    
+            await update.message.reply_text("If you can't do it, I can't")
+        
     context.user_data["target_user"] = target_user
     context.user_data["username"] = username
     context.user_data["mute_dur"] = 0
