@@ -45,7 +45,7 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if not username_type:
                 await update.message.reply_text(f"Mute [@{username}](https://t.me/{username}) for how long?", reply_markup=reply_markup, parse_mode="MarkdownV2")
             else:
-                await update.message.reply_text(f"Mute <a href='tg://user?id={target_user.id}>{username}</a> for how long?", reply_markup=reply_markup, parse_mode="HTML")
+                await update.message.reply_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for how long?", reply_markup=reply_markup, parse_mode="HTML")
         else:
             await update.message.reply_text("I can't mute an admin, unfortunately.")
     
