@@ -111,7 +111,7 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if await is_bot(update, context, target_user.id):
             await update.message.reply_text("I was probably not muted if you can see this.")
         if await has_admin_permission(context, chat_id, user_id, permission_required):
-            if not has_user_restriction(context, chat_id, target_user.id, "can_send_messages"):
+            if has_user_restriction(context, chat_id, target_user.id, "can_send_messages"):
                 await update.message.reply_text("This user isn't muted though.")
             else:
                 await update.message.reply_text(f"Unmuted <a href='tg://user?id={target_user.id}'>{username}!</a>", parse_mode="HTML")
