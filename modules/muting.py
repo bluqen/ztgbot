@@ -1,5 +1,5 @@
 import logging
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ChatPermissions
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ChatPermissions, MessageEntity
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler
 
 from datetime import datetime, timedelta
@@ -35,8 +35,21 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception as e:
             await update.message.reply_text(f"Couldn't find @{username} in this chat.")
             return
+        
+
+        entities = list(update.message.parse_entities([MessageEntity.TEXT_MENTION]))
+        if len(entities) > 0:
+            ent = entities[0]
+        else:
+            ent = None
+
+        if ent:
+            target_user = ent.user
+        else:
+            if context.args[0][0] == "@":
+                await update.message.reply_text("I don't think I'm able to get this user, it'll be easier if you could reply to their message.")
     else:
-        await update.message.reply_text("Use /mute @{username} or reply to the user")
+        await update.message.reply_text("Use /mute @{username} or reply to the user.")
         return
     if target_user:
         if await is_bot(update, context, target_user.id):
@@ -75,15 +88,15 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.data == "add_an_hr":
         context.user_data["mute_dur"] += 1
         if not context.user_data.get("username_type"):
-            await query.edit_message_text(f"Mute @{username} for {context.user_data.get('mute_dur')} hours?", reply_markup=reply_markup)
+            await query.edit_message_text(f"Mute [@{username}](https://t.me/{username}) for {context.user_data.get('mute_dur')} hours?", reply_markup=reply_markup, parse_mode="MarkdownV2")
         else:
-            await query.edit_message_text(f"Mute {username} for {context.user_data.get('mute_dur')} hours?", reply_markup=reply_markup)
+            await query.edit_message_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for {context.user_data.get('mute_dur')} hours?", reply_markup=reply_markup, parse_mode="HTML")
 
     if query.data == "set_mute":
         if not context.user_data.get("username_type"):
-            await query.edit_message_text(f"Muted @{username} for {context.user_data.get('mute_dur')} hours")
+            await query.edit_message_text(f"Muted [@{username}](https://t.me/{username}) for {context.user_data.get('mute_dur')} hours", parse_mode="MarkdownV2")
         else:
-            await query.edit_message_text(f"Muted {username} for {context.user_data.get('mute_dur')} hours")
+            await query.edit_message_text(f"Muted <a href='tg://user?id={target_user.id}'>{username}</a> for {context.user_data.get('mute_dur')} hours", parse_mode="HTML")
 
     if context.user_data.get("mute_dur") > 0:
         until = datetime.utcnow() + timedelta(hours=context.user_data.get("mute_dur"))  # 1 hour mute
