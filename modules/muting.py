@@ -44,9 +44,9 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text(f"If you can't do it, I can't\nYou'll need permission: `{permission_required}`", parse_mode="MarkdownV2")
         
-    context.user_data["target_user"] = target_user
-    context.user_data["username"] = username
-    context.user_data["mute_dur"] = 0
+    context.chat_data["target_user"] = target_user
+    context.chat_data["username"] = username
+    context.chat_data["mute_dur"] = 0
 
 async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
@@ -79,9 +79,9 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
         else:
             await update.message.reply_text(f"If you can't do it, I can't\nYou'll need permission: `{permission_required}`", parse_mode="MarkdownV2")
-    context.user_data["target_user"] = target_user
-    context.user_data["username"] = username
-    context.user_data["mute_dur"] = 0
+    context.chat_data["target_user"] = target_user
+    context.chat_data["username"] = username
+    context.chat_data["mute_dur"] = 0
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [[
@@ -94,8 +94,12 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()  # Acknowledge the callback query
 
     # Get the target user and their username from the context
-    target_user = context.user_data.get('target_user')
-    username = context.user_data.get('username')
+    target_user = context.chat_data.get('target_user')
+    username = context.chat_data.get('username')
+
+    if not target_user:
+        await query.edit_message_text("Reply to the user's message with /mute")
+        return
 
     unmute_keyboard = [[
         InlineKeyboardButton("Unmute", callback_data=f"unmute:{target_user.id}")
@@ -107,13 +111,13 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if query.data == "add_an_hr":
-        context.user_data["mute_dur"] += 1
-        await query.edit_message_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for {context.user_data.get('mute_dur')} hours?", reply_markup=reply_markup, parse_mode="HTML")
+        context.chat_data["mute_dur"] += 1
+        await query.edit_message_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for {context.chat_data.get('mute_dur')} hours?", reply_markup=reply_markup, parse_mode="HTML")
 
     if query.data == "set_mute":
-        if context.user_data.get("mute_dur") > 0:
-            await query.edit_message_text(f"Muted <a href='tg://user?id={target_user.id}'>{username}</a> for {context.user_data.get('mute_dur')} hours", parse_mode="HTML", reply_markup=unmute_markup)
-            until = datetime.utcnow() + timedelta(hours=context.user_data.get("mute_dur"))  # 1 hour mute
+        if context.chat_data.get("mute_dur") > 0:
+            await query.edit_message_text(f"Muted <a href='tg://user?id={target_user.id}'>{username}</a> for {context.chat_data.get('mute_dur')} hours", parse_mode="HTML", reply_markup=unmute_markup)
+            until = datetime.utcnow() + timedelta(hours=context.chat_data.get("mute_dur"))  # 1 hour mute
             await context.bot.restrict_chat_member(
                 chat_id=update.effective_chat.id,
                 user_id=target_user.id,
