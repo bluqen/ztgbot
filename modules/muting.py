@@ -112,26 +112,40 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if query.data == "add_an_hr":
-        context.chat_data["mute_dur"] += 1
-        await query.edit_message_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for {context.chat_data.get('mute_dur')} hours?", reply_markup=reply_markup, parse_mode="HTML")
+        user = query.from_user
+        chat = query.message.chat
+        permission_required = "can_restrict_members"
+        target_user_id = int(query.data.split(":")[1])
+        if await has_admin_permission(context, chat.id, user.id, permission_required):
+            context.chat_data["mute_dur"] += 1
+            await query.edit_message_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for {context.chat_data.get('mute_dur')} hours?", reply_markup=reply_markup, parse_mode="HTML")
+        else:
+            await query.answer(f"If you can't do it, I can't\nYou'll need permission: {permission_required}", show_alert=True)
 
     if query.data == "set_mute":
-        if context.chat_data.get("mute_dur") > 0:
-            await query.edit_message_text(f"Muted <a href='tg://user?id={target_user.id}'>{username}</a> for {context.chat_data.get('mute_dur')} hours", parse_mode="HTML", reply_markup=unmute_markup)
-            until = datetime.utcnow() + timedelta(hours=context.chat_data.get("mute_dur"))  # 1 hour mute
-            await context.bot.restrict_chat_member(
-                chat_id=update.effective_chat.id,
-                user_id=target_user.id,
-                permissions=ChatPermissions(can_send_messages=False),
-                until_date=until
-            )
+        user = query.from_user
+        chat = query.message.chat
+        permission_required = "can_restrict_members"
+        target_user_id = int(query.data.split(":")[1])
+        if await has_admin_permission(context, chat.id, user.id, permission_required):
+            if context.chat_data.get("mute_dur") > 0:
+                await query.edit_message_text(f"Muted <a href='tg://user?id={target_user.id}'>{username}</a> for {context.chat_data.get('mute_dur')} hours", parse_mode="HTML", reply_markup=unmute_markup)
+                until = datetime.utcnow() + timedelta(hours=context.chat_data.get("mute_dur"))  # 1 hour mute
+                await context.bot.restrict_chat_member(
+                    chat_id=update.effective_chat.id,
+                    user_id=target_user.id,
+                    permissions=ChatPermissions(can_send_messages=False),
+                    until_date=until
+                )
+            else:
+                await query.edit_message_text(f"Muted <a href='tg://user?id={target_user.id}'>{username}</a>!", parse_mode="HTML", reply_markup=unmute_markup)
+                await context.bot.restrict_chat_member(
+                    chat_id=update.effective_chat.id,
+                    user_id=target_user.id,
+                    permissions=ChatPermissions(can_send_messages=False)
+                )
         else:
-            await query.edit_message_text(f"Muted <a href='tg://user?id={target_user.id}'>{username}</a>!", parse_mode="HTML", reply_markup=unmute_markup)
-            await context.bot.restrict_chat_member(
-                chat_id=update.effective_chat.id,
-                user_id=target_user.id,
-                permissions=ChatPermissions(can_send_messages=False)
-            )
+            await query.answer(f"If you can't do it, I can't\nYou'll need permission: {permission_required}", show_alert=True)
 
     if query.data.startswith("unmute:"):
         user = query.from_user
