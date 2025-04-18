@@ -54,7 +54,7 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if target_user:
         if await is_bot(update, context, target_user.id):
             await update.message.reply_text("I will not mute myself, thank you.")
-        if has_admin_permission(context, chat_id, user_id, "can_restrict_members"):
+        if await has_admin_permission(context, chat_id, user_id, "can_restrict_members"):
             if not await is_admin(update, context, target_user.id):
                 await update.message.reply_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for how long?", reply_markup=reply_markup, parse_mode="HTML")
             else:
