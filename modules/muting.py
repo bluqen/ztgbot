@@ -39,14 +39,14 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("Usage: /mute @username or reply to a user with /mute")
         return
-    
-    if not is_admin(update, context, target_user.id):
-        if not username_type:
-            await update.message.reply_text(f"Mute @{username} for how long?", reply_markup=reply_markup)
+    if target_user:
+        if not is_admin(update, context, target_user.id):
+            if not username_type:
+                await update.message.reply_text(f"Mute @{username} for how long?", reply_markup=reply_markup)
+            else:
+                await update.message.reply_text(f"Mute {username} for how long?", reply_markup=reply_markup)
         else:
-            await update.message.reply_text(f"Mute {username} for how long?", reply_markup=reply_markup)
-    else:
-        await update.message.reply_text("I can't mute an admin, unfortunately")
+            await update.message.reply_text("I can't mute an admin, unfortunately")
     
     context.user_data["target_user"] = target_user
     context.user_data["username"] = username
