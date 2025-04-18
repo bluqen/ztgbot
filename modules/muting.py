@@ -5,7 +5,7 @@ from telegram.constants import ParseMode
 
 from datetime import datetime, timedelta
 
-from ..utils.chat import is_admin
+from utils.chat import is_admin
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
