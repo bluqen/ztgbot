@@ -115,7 +115,6 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user = query.from_user
         chat = query.message.chat
         permission_required = "can_restrict_members"
-        target_user_id = int(query.data.split(":")[1])
         if await has_admin_permission(context, chat.id, user.id, permission_required):
             context.chat_data["mute_dur"] += 1
             await query.edit_message_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for {context.chat_data.get('mute_dur')} hours?", reply_markup=reply_markup, parse_mode="HTML")
@@ -126,7 +125,6 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user = query.from_user
         chat = query.message.chat
         permission_required = "can_restrict_members"
-        target_user_id = int(query.data.split(":")[1])
         if await has_admin_permission(context, chat.id, user.id, permission_required):
             if context.chat_data.get("mute_dur") > 0:
                 await query.edit_message_text(f"Muted <a href='tg://user?id={target_user.id}'>{username}</a> for {context.chat_data.get('mute_dur')} hours", parse_mode="HTML", reply_markup=unmute_markup)
