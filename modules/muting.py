@@ -1,11 +1,10 @@
 import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ChatPermissions
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler
-from telegram.constants import ParseMode
 
 from datetime import datetime, timedelta
 
-from utils.chat import is_admin
+from utils.chat import is_admin, is_bot
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -37,17 +36,18 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"Couldn't find @{username} in this chat.")
             return
     else:
-        await update.message.reply_text("Usage: /mute @username or reply to a user with /mute")
+        await update.message.reply_text("Use /mute @{username} or reply to the user")
         return
     if target_user:
-        if not await is_admin(update, context, target_user.id):
-            print("DDDD")
+        if await is_bot(update, context, target_user.id):
+            await update.message.reply_text("I will not mute myself, thank you.")
+        elif not await is_admin(update, context, target_user.id):
             if not username_type:
-                await update.message.reply_text(f"Mute @{username} for how long?", reply_markup=reply_markup)
+                await update.message.reply_text(f"Mute [@{username}](https://t.me/{username}) for how long?", reply_markup=reply_markup, parse_mode="MarkdownV2")
             else:
-                await update.message.reply_text(f"Mute {username} for how long?", reply_markup=reply_markup)
+                await update.message.reply_text(f"Mute <a href='tg://user?id={target_user.id}>{username}</a> for how long?", reply_markup=reply_markup, parse_mode="HTML")
         else:
-            await update.message.reply_text("I can't mute an admin, unfortunately")
+            await update.message.reply_text("I can't mute an admin, unfortunately.")
     
     context.user_data["target_user"] = target_user
     context.user_data["username"] = username

@@ -8,3 +8,8 @@ async def is_admin(update, context, user_id=None):
     except Exception as e:
         print(f"Error checking admin status: {e}")
         return False
+    
+async def is_bot(update, context, user_id=None):
+    bot_id = context.bot.id
+    user_id = user_id or update.effective_user.id
+    return bot_id == user_id
