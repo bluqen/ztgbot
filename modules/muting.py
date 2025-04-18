@@ -5,6 +5,8 @@ from telegram.constants import ParseMode
 
 from datetime import datetime, timedelta
 
+from ..utils.chat import is_admin
+
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
@@ -38,10 +40,13 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Usage: /mute @username or reply to a user with /mute")
         return
     
-    if not username_type:
-        await update.message.reply_text(f"Mute @{username} for how long?", reply_markup=reply_markup)
+    if not is_admin(update, context, target_user.id):
+        if not username_type:
+            await update.message.reply_text(f"Mute @{username} for how long?", reply_markup=reply_markup)
+        else:
+            await update.message.reply_text(f"Mute {username} for how long?", reply_markup=reply_markup)
     else:
-        await update.message.reply_text(f"Mute {username} for how long?", reply_markup=reply_markup)
+        await update.message.reply_text("I can't mute an admin, unfortunately")
     
     context.user_data["target_user"] = target_user
     context.user_data["username"] = username
