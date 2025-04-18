@@ -79,6 +79,9 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
         else:
             await update.message.reply_text(f"If you can't do it, I can't\nYou'll need permission: `{permission_required}`", parse_mode="MarkdownV2")
+    context.user_data["target_user"] = target_user
+    context.user_data["username"] = username
+    context.user_data["mute_dur"] = 0
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [[
@@ -88,7 +91,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     unmute_keyboard = [[
-        InlineKeyboardButton("Unmute", callback_data="unmute")
+        InlineKeyboardButton("Unmute", callback_data=f"unmute:{target_user}")
     ]]
     unmute_markup = InlineKeyboardMarkup(unmute_keyboard)
 
@@ -125,13 +128,13 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 permissions=ChatPermissions(can_send_messages=False)
             )
 
-    if query.data == "unmute":
+    if query.data.startswith("unmute:"):
         user = query.from_user
         chat = query.message.chat
         permission_required = "can_restrict_members"
+        target_user = int(query.data.split(":")[1])
+        context.user_data["target_user"] = target_user
 
-        # Get ChatMember object
-        chat_member = await context.bot.get_chat_member(chat.id, user.id)
         if await has_admin_permission(context, chat.id, user.id, permission_required):
             if not has_user_restriction(context, chat.id, target_user.id, "can_send_messages"):
                 await query.edit_message_text("This user isn't muted though.")
