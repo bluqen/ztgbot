@@ -91,7 +91,8 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     query = update.callback_query
-    await query.answer()  # Acknowledge the callback query
+    if query.data in ["add_an_hr", "set_mute"]:
+        await query.answer()  # Acknowledge the callback query
 
     # Get the target user and their username from the context
     target_user = context.chat_data.get('target_user')
