@@ -42,7 +42,7 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if target_user:
         if not await is_admin(update, context, target_user.id):
             print("DDDD")
-            if not await username_type:
+            if not username_type:
                 await update.message.reply_text(f"Mute @{username} for how long?", reply_markup=reply_markup)
             else:
                 await update.message.reply_text(f"Mute {username} for how long?", reply_markup=reply_markup)
