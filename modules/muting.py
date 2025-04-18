@@ -166,3 +166,4 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 mute_handler = CommandHandler("mute", mute)
 mute_button_handler = CallbackQueryHandler(button)
+unmute_handler = CommandHandler("unmute", unmute)

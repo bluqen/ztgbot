@@ -3,7 +3,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from telegram.constants import ParseMode
 
-from modules.muting import mute_handler, mute_button_handler
+from modules.muting import mute_handler, mute_button_handler, unmute_handler
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -30,6 +30,7 @@ if __name__ == '__main__':
     application.add_handler(start_handler)
     application.add_handler(owner_handler)
     application.add_handler(mute_handler)
+    application.add_handler(unmute_handler)
     application.add_handler(mute_button_handler)
     
     application.run_polling(timeout=-1)
