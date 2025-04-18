@@ -64,8 +64,8 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [[
-        InlineKeyboardButton("+1 hour", callback_data="add_an_hr"),
-        InlineKeyboardButton("Done", callback_data="set_mute")
+        InlineKeyboardButton("Done", callback_data="set_mute"),
+        InlineKeyboardButton("+1 hour", callback_data="add_an_hr")
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
