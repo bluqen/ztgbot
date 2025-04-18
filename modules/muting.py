@@ -167,3 +167,12 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 mute_handler = CommandHandler("mute", mute)
 mute_button_handler = CallbackQueryHandler(button)
 unmute_handler = CommandHandler("unmute", unmute)
+
+__module_name__ = "Muting"
+__help__ = """
+Short but efficient commands to silence those who deserve to be.
+
+__Commands__
+/mute - Reply this to a member's message to mute them, for a specific time or indefinitely.
+/unmute - Reply this to a member's message to unmute them.
+"""
