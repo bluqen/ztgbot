@@ -149,7 +149,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     permissions=ChatPermissions(can_send_messages=True)
                 )
         else:
-            await query.answer(f"If you can't do it, I can't\nYou'll need permission: `{permission_required}`", parse_mode="MarkdownV2", show_alert=True)
+            await query.answer(f"If you can't do it, I can't\nYou'll need permission: {permission_required}", show_alert=True)
 
 mute_handler = CommandHandler("mute", mute)
 mute_button_handler = CallbackQueryHandler(button)
