@@ -16,6 +16,7 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     target_user = None
     username = None
+    permission_required = "can_restrict_members"
 
     keyboard = [[
         InlineKeyboardButton("Till unmute", callback_data="set_mute"),
@@ -26,6 +27,8 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.reply_to_message:
         target_user = update.message.reply_to_message.from_user
         username = target_user.username or target_user.first_name
+        if target_user.username:
+            username="@" + username
     
         """    elif context.args:
                 username = context.args[0].lstrip('@')
@@ -54,18 +57,72 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if target_user:
         if await is_bot(update, context, target_user.id):
             await update.message.reply_text("I will not mute myself, thank you.")
-        if await has_admin_permission(context, chat_id, user_id, "can_restrict_members"):
+        if await has_admin_permission(context, chat_id, user_id, permission_required):
             if not await is_admin(update, context, target_user.id):
                 await update.message.reply_text(f"Mute <a href='tg://user?id={target_user.id}'>{username}</a> for how long?", reply_markup=reply_markup, parse_mode="HTML")
             else:
                 await update.message.reply_text("I can't mute an admin, unfortunately.")
             print("do")
         else:
-            await update.message.reply_text("If you can't do it, I can't")
+            await update.message.reply_text("If you can't do it, I can't\nYou'll need permission: `{permission_required}`", parse_mode="MarkdownV2")
         
     context.user_data["target_user"] = target_user
     context.user_data["username"] = username
     context.user_data["mute_dur"] = 0
+
+async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
+    target_user = None
+    username = None
+    permission_required = "can_restrict_members"
+
+    if update.message.reply_to_message:
+        target_user = update.message.reply_to_message.from_user
+        username = target_user.username or target_user.first_name
+        if target_user.username:
+            username="@" + username
+
+        """    elif context.args:
+                username = context.args[0].lstrip('@')
+                try:
+                    member = await context.bot.get_chat_member(chat_id, f"@{username}")
+                    target_user = member.user
+                except Exception as e:
+                    await update.message.reply_text(f"Couldn't find @{username} in this chat., {e}")
+                    return
+                
+
+                entities = list(update.message.parse_entities([MessageEntity.TEXT_MENTION]))
+                if len(entities) > 0:
+                    ent = entities[0]
+                else:
+                    ent = None
+
+                if ent:
+                    target_user = ent.user
+                else:
+                    if context.args[0][0] == "@":
+                        await update.message.reply_text("I don't think I'm able to get this user, it'll be easier if you could reply to their message.")"""
+    else:
+        await update.message.reply_text("Reply to the user's message with /unmute")
+        return
+    if target_user:
+        if await is_bot(update, context, target_user.id):
+            await update.message.reply_text("I'm probably not unmuted if you can see this.")
+        if await has_admin_permission(context, chat_id, user_id, permission_required):
+            member = await context.bot.get_chat_member(chat_id, target_user.id)
+            if member.can_send_messages:
+                await update.message.reply_text("This user isn't muted though.")
+            else:
+                await update.message.reply_text(f"Unmuted <a href='tg://user?id={target_user.id}'>{username}!</a>")
+                await context.bot.restrict_chat_member(
+                    chat_id=update.effective_chat.id,
+                    user_id=target_user.id,
+                    permissions=ChatPermissions(can_send_messages=True)
+                )
+        else:
+            await update.message.reply_text("If you can't do it, I can't\nYou'll need permission: `{permission_required}`", parse_mode="MarkdownV2")
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [[
