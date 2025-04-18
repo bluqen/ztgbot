@@ -69,8 +69,6 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.data == "add_an_hr":
         context.user_data["mute_dur"] += 1
         if not context.user_data.get("username_type"):
-            await query.edit_message_text(f"Mute @{username} for {context.user_data.get("mute_dur")} hours?", reply_markup=reply_markup)
-        else:
             await query.edit_message_text(f"Mute {username} for {context.user_data.get("mute_dur")} hours?", reply_markup=reply_markup)
 
     if query.data == "set_mute":
