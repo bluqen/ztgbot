@@ -90,17 +90,17 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    unmute_keyboard = [[
-        InlineKeyboardButton("Unmute", callback_data=f"unmute:{target_user}")
-    ]]
-    unmute_markup = InlineKeyboardMarkup(unmute_keyboard)
-
     query = update.callback_query
     await query.answer()  # Acknowledge the callback query
 
     # Get the target user and their username from the context
     target_user = context.user_data.get('target_user')
     username = context.user_data.get('username')
+
+    unmute_keyboard = [[
+        InlineKeyboardButton("Unmute", callback_data=f"unmute:{target_user.id}")
+    ]]
+    unmute_markup = InlineKeyboardMarkup(unmute_keyboard)
 
     if not target_user:
         await query.edit_message_text("Reply to the user's message with /mute")
@@ -132,17 +132,16 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user = query.from_user
         chat = query.message.chat
         permission_required = "can_restrict_members"
-        target_user = int(query.data.split(":")[1])
-        context.user_data["target_user"] = target_user
+        target_user_id = int(query.data.split(":")[1])
 
         if await has_admin_permission(context, chat.id, user.id, permission_required):
-            if not has_user_restriction(context, chat.id, target_user.id, "can_send_messages"):
+            if not has_user_restriction(context, chat.id, target_user_id, "can_send_messages"):
                 await query.edit_message_text("This user isn't muted though.")
             else:
-                await query.edit_message_text(f"Unmuted <a href='tg://user?id={target_user.id}'>{username}!</a>", parse_mode="HTML")
+                await query.edit_message_text(f"Unmuted <a href='tg://user?id={target_user_id}'>{username}!</a>", parse_mode="HTML")
                 await context.bot.restrict_chat_member(
                     chat_id=update.effective_chat.id,
-                    user_id=target_user.id,
+                    user_id=target_user_id,
                     permissions=ChatPermissions(can_send_messages=True)
                 )
         else:
