@@ -64,7 +64,7 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text("I can't mute an admin, unfortunately.")
             print("do")
         else:
-            await update.message.reply_text("If you can't do it, I can't\nYou'll need permission: `{permission_required}`", parse_mode="MarkdownV2")
+            await update.message.reply_text(f"If you can't do it, I can't\nYou'll need permission: `{permission_required}`", parse_mode="MarkdownV2")
         
     context.user_data["target_user"] = target_user
     context.user_data["username"] = username
@@ -111,7 +111,7 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if await is_bot(update, context, target_user.id):
             await update.message.reply_text("I was probably not muted if you can see this.")
         if await has_admin_permission(context, chat_id, user_id, permission_required):
-            if has_user_restriction(context, chat_id, target_user.id, "can_send_messages"):
+            if not has_user_restriction(context, chat_id, target_user.id, "can_send_messages"):
                 await update.message.reply_text("This user isn't muted though.")
             else:
                 await update.message.reply_text(f"Unmuted <a href='tg://user?id={target_user.id}'>{username}!</a>", parse_mode="HTML")
@@ -121,7 +121,7 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     permissions=ChatPermissions(can_send_messages=True)
                 )
         else:
-            await update.message.reply_text("If you can't do it, I can't\nYou'll need permission: `{permission_required}`", parse_mode="MarkdownV2")
+            await update.message.reply_text(f"If you can't do it, I can't\nYou'll need permission: `{permission_required}`", parse_mode="MarkdownV2")
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [[
