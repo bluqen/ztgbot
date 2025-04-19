@@ -1,0 +1,79 @@
+from motor.motor_asyncio import AsyncIOMotorClient
+
+# Replace with your MongoDB URI
+MONGO_URI = "mongodb+srv://zulibot:zulibot123_123@cluster0.eynsetl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+# Connect to MongoDB
+client = AsyncIOMotorClient(MONGO_URI)
+db = client["zulibot"]
+users_collection = db["users"]
+groups_collection = db["groups"]  # Separate collection for groups
+
+async def add_user(user_id, username, language="en", other_data=None):
+    """
+    Adds or updates a user in the database.
+    """
+    if other_data is None:
+        other_data = {}
+
+    await users_collection.update_one(
+        {"user_id": user_id},
+        {"$set": {"username": username, "language": language, "other_data": other_data}},
+        upsert=True
+    )
+
+# Function to get user data (including language and other information)
+async def get_user(user_id):
+    """
+    Retrieves full user data, including language and other data.
+    """
+    user = await users_collection.find_one({"user_id": user_id})
+    
+    if user:
+        return {
+            "user_id": user.get("user_id"),
+            "username": user.get("username"),
+            "language": user.get("language", "en"),  # Default to 'en'
+            "other_data": user.get("other_data", {})
+        }
+
+    return {
+        "user_id": user_id,
+        "username": None,
+        "language": "en",  # Default to 'en' for new users
+        "other_data": {}
+    }
+
+# Function to get group data (including language and other information)
+async def get_group(group_id):
+    """
+    Retrieves full group data, including language and other settings.
+    """
+    group = await groups_collection.find_one({"group_id": group_id})
+    
+    if group:
+        return {
+            "group_id": group.get("group_id"),
+            "language": group.get("language", "en"),  # Default to 'en'
+            "other_settings": group.get("other_settings", {})
+        }
+    
+    return {
+        "group_id": group_id,
+        "language": "en",  # Default to 'en' for new groups
+        "other_settings": {}
+    }
+
+# Function to add/update group data (language and other settings)
+async def add_group(group_id, language="en", other_settings=None):
+    """
+    Adds or updates group data in the database.
+    """
+    if other_settings is None:
+        other_settings = {}
+
+    await groups_collection.update_one(
+        {"group_id": group_id},
+        {"$set": {"language": language, "other_settings": other_settings}},
+        upsert=True
+    )

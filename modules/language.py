@@ -1,6 +1,8 @@
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler
 
+from db import add_user, add_group
+
 # Supported language codes
 AVAILABLE_LANGUAGES = ["en", "fr", "es"]
 AVAILABLE_LANGUAGES_FORMAT = ["`en`", "`fr`", "`es`"]  # Add more as needed
@@ -28,8 +30,19 @@ async def setlang(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     chat_type = update.effective_chat.type
     if chat_type == "private":
+        user_id = update.message.from_user.id
+        username = update.message.from_user.username
+
+        # Save the new language for the user
+        await add_user(user_id, username, lang_code)
+
         context.user_data["lang"] = lang_code
+
     elif chat_type in ["group", "supergroup"]:
+        group_id = update.effective_chat.id
+
+        # Save the new language for the group
+        await add_group(group_id, lang_code)
         context.chat_data[f"{update.effective_chat.id}_lang"] = lang_code
 
     await update.message.reply_text(

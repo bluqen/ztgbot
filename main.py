@@ -10,6 +10,8 @@ from languages import load_language, load_lang
 
 from modules.muting import mute_handler, mute_button_handler, unmute_handler
 
+from db import add_user, get_user
+
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO

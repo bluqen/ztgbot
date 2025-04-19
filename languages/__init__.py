@@ -3,6 +3,8 @@ import os
 
 from functools import wraps
 
+from db import get_group, get_user
+
 def load_language(lang_code: str):
     path = os.path.join(os.path.dirname(__file__), f"{lang_code}.json")
     if not os.path.isfile(path):
@@ -17,12 +19,23 @@ def load_lang(func):
         chat_id = update.effective_chat.id
         lang_code = "en"  # Default language
         
-        # Check if it's a private chat or a group
-        if update.effective_chat.type == "private":
-            lang_code = context.user_data.get("lang", "en")  # User-specific language
-        elif update.effective_chat.type in ['group', 'supergroup']:
-            lang_code = context.chat_data.get(f"{chat_id}_lang", "en")  # Group-specific language
+        user_id = None
+        if update.message:
+            user_id = update.message.from_user.id
+        else:
+            pass
+        group_id = update.effective_chat.id if update.effective_chat.type in ["group", "supergroup"] else None
         
+        if user_id:
+            user_data = await get_user(user_id)
+            lang_code = user_data.get("language", "en")
+
+        # If in a group, override the language based on group setting
+        if group_id:
+            group_data = await get_group(group_id)
+            group_lang_code = group_data.get("language", "en")
+            lang_code = group_lang_code  # Group language takes precedence
+
         # Load the corresponding language
         LANG = load_language(lang_code)
         
