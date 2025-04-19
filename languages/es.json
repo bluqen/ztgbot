@@ -1,0 +1,25 @@
+{
+    "ST_MSG": "¡Hola! Soy Zuli, tu asistente inteligente para la gestión de grupos. 😊\n\nPuedo ayudarte con:\n- Detección inteligente de comandos\n- Antiflood inteligente para evitar el spam\n- Silenciar/reactivar miembros\n- Y mucho más...\n\nPuedes contar conmigo para ayudarte a gestionar tu grupo o canal. 💬\n\n¿Necesitas ayuda? Únete a nuestro grupo de soporte: [Grupo de Soporte de Zuli](https://t.me/zuli_support)\nY consulta nuestro canal para actualizaciones: [Actualizaciones de Zuli](https://t.me/zuli_updates)\n\n¡Hagamos que tu grupo o canal sea mejor juntos! 💪\nEscribe /help para saber cómo usarme",
+    "HP_MSG": "¡Hola! Soy Zuli, tu asistente inteligente. 😊\n\nEstoy aquí para facilitar la gestión de grupos con funciones como:\n\n- Detección inteligente de comandos ✨\n- Protección avanzada contra spam 🚫\n- Silenciar y reactivar usuarios 🎧\n- Herramientas para administradores y más 🔧\n\n¿Quieres saber más sobre lo que puedo hacer? ¡Haz clic en uno de los botones de abajo! 👇\n\nYa sea que necesites ayuda con comandos, gestión del grupo o cualquier otra cosa, estoy aquí para ti. ¡Vamos allá! 🙌",
+    "HP_404": "No hay ayuda disponible para este módulo",
+    "MTG": "Silenciar",
+    "HP_MTG": "Comandos cortos pero efectivos para silenciar a quienes lo merecen.\n\n__Comandos__\n/mute - Responde a un mensaje de un miembro para silenciarlo, por un tiempo específico o indefinidamente.\n/unmute - Responde a un mensaje de un miembro para reactivarlo.",
+    "LNG": "Idioma",
+    "HP_LNG": "Módulo de localización para que Zuli sea más comprensible configurando el idioma\n\n__Comandos__\n/setlang - Usa esto para cambiar el idioma personal o del grupo",
+    "MTG_KB_IDF": "Hasta reactivar",
+    "MTG_KB_PLS1": "+1 hora",
+    "MTG_KB_DONE": "Hecho",
+    "MTG_ERR_REP": "Responde al mensaje del usuario con /mute",
+    "MTG_ERR_SLF": "No me silenciaré a mí misma, gracias.",
+    "MTG_TIME": "¿Silenciar a <a href='tg://user?id={user_id}'>{username}</a> por cuánto tiempo?",
+    "MTG_ERR_ADM": "No puedo silenciar a un administrador.",
+    "MTG_ERR_PRM": "Si tú no puedes hacerlo, yo tampoco.\nNecesitarás el permiso: `{permission_required}`",
+    "MTG_ERR_UNMUTE_SLF": "Probablemente no estaba silenciada si ves esto.",
+    "MTG_ERR_NOTMUTED": "Este usuario no está silenciado.",
+    "MTG_KB_UNMUTE": "Reactivar",
+    "MTG_HRS": "¿Silenciar a <a href='tg://user?id={user_id}'>{username}</a> por {hours} horas?",
+    "MTG_MUTED_HRS": "Silenciado <a href='tg://user?id={user_id}'>{username}</a> por {hours} horas",
+    "MTG_MUTED": "¡Silenciado <a href='tg://user?id={user_id}'>{username}</a>!",
+    "MTG_UNMUTED": "¡Reactivado <a href='tg://user?id={user_id}'>{username}</a>!"
+  }
+  
