@@ -76,7 +76,7 @@ async def help_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         mod_name = data.split(":", 1)[1]
         module = modules.get(mod_name)
         help_text = getattr(module, "__help__", LANG["HP_404"])
-        help_text = LANG[f"HP_{getattr(module, "__module_code__")}"]
+        help_text = LANG[f"HP_{getattr(module, '__module_code__')}"]
 
         # Add back button
         keyboard = [[InlineKeyboardButton("« Back", callback_data="help_back")]]

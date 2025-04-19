@@ -20,5 +20,9 @@
     "MTG_HRS": "Mettre <a href='tg://user?id={user_id}'>{username}</a> en sourdine pendant {hours} heures ?",
     "MTG_MUTED_HRS": "Mise en sourdine de <a href='tg://user?id={user_id}'>{username}</a> pendant {hours} heures",
     "MTG_MUTED": "Mise en sourdine de <a href='tg://user?id={user_id}'>{username}</a> !",
-    "MTG_UNMUTED": "Réactivation de <a href='tg://user?id={user_id}'>{username}</a> !"
+    "MTG_UNMUTED": "Réactivation de <a href='tg://user?id={user_id}'>{username}</a> !",
+    "GRT": "Salutations",
+    "HP_GRT": "*Salutations*\n\nAccueille chaleureusement les nouveaux membres du groupe, ou fais tes adieux aux anciens\n\n__ *Commandes* __\n/setgreeting `{greeting}` - Définit le message de bienvenue pour un groupe\n\n/setfarewell `{farewell}` - Définit le message d'adieu pour un groupe",
+    "GRT_GRT_MSG": "Bienvenue dans le groupe {username} ! 🎉 Nous sommes heureux de t'avoir parmi nous ! 😊",
+    "GRT_FRW_MSG": "Au revoir {username} 👋"
 }
