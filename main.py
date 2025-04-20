@@ -1,40 +1,46 @@
 import os
 import importlib
 import logging
+import threading
 from flask import Flask
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler
 from telegram.constants import ParseMode
 
-from languages import load_language, load_lang
-
-from modules.muting import mute_handler, mute_button_handler, unmute_handler
-
-from db import add_user, get_user
+from languages import load_lang
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
 
+# --- Flask Dummy Server ---
 app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return 'Bot is running!'
+
+def run_flask():
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
+
+# --- Telegram Bot Setup ---
 def load_modules_and_handlers():
     modules = {}
     handlers = []
 
     for filename in os.listdir('modules'):
         if filename.endswith('.py') and filename != '__init__.py':
-            file_module_name = filename[:-3]  # Remove '.py' extension
+            file_module_name = filename[:-3]
             module = importlib.import_module(f'modules.{file_module_name}')
             display_name = getattr(module, "__module_name__", file_module_name)
             modules[display_name] = module
-        if hasattr(module, "__handlers__"):
-            handlers.extend(module.__handlers__)
+            if hasattr(module, "__handlers__"):
+                handlers.extend(module.__handlers__)
     return modules, handlers
 
-modules = load_modules_and_handlers()[0]
-handlers = load_modules_and_handlers()[1]
+modules, handlers = load_modules_and_handlers()
 
 @load_lang
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -58,30 +64,21 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await update.message.reply_text(
-        LANG["HP_MSG"],
-        reply_markup=reply_markup
-    )
+    await update.message.reply_text(LANG["HP_MSG"], reply_markup=reply_markup)
 
 @load_lang
 async def help_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     LANG = context.chat_data["LANG"]
-
     query = update.callback_query
     await query.answer()
-
     data = query.data
 
     if data.startswith("help_module:"):
         mod_name = data.split(":", 1)[1]
         module = modules.get(mod_name)
-        help_text = getattr(module, "__help__", LANG["HP_404"])
-        help_text = LANG[f"HP_{getattr(module, '__module_code__')}"]
-
-        # Add back button
+        help_text = LANG.get(f"HP_{getattr(module, '__module_code__')}", LANG["HP_404"])
         keyboard = [[InlineKeyboardButton("« Back", callback_data="help_back")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
-
         await query.edit_message_text(help_text, reply_markup=reply_markup, parse_mode="Markdown")
 
     elif data == "help_back":
@@ -100,22 +97,17 @@ async def help_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(LANG["HP_MSG"], reply_markup=reply_markup)
 
-@app.route('/')
-def home():
-    return 'Bot is running!'
-
+# --- Run bot + server ---
 if __name__ == '__main__':
-    application = ApplicationBuilder().token('5986827967:AAERzTN7sckAZmOO1KeJH5iPZWsr0aQvNo8').build()
-    
-    start_handler = CommandHandler("start", start)
-    help_handler = CommandHandler("help", help)
-    help_button_handler = CallbackQueryHandler(help_button, pattern="^(help_module:.*|help_back)$")
-    application.add_handler(start_handler)
-    application.add_handler(help_handler)
-    application.add_handler(help_button_handler)
+    # Run Flask in a separate thread
+    threading.Thread(target=run_flask).start()
+
+    # Run Telegram bot
+    application = ApplicationBuilder().token('YOUR_TOKEN_HERE').build()
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("help", help))
+    application.add_handler(CallbackQueryHandler(help_button, pattern="^(help_module:.*|help_back)$"))
     for handler in handlers:
         application.add_handler(handler)
-    
-    application.run_polling(timeout=-1)
 
-    app.run(host='0.0.0.0', port=5000)
+    application.run_polling()
