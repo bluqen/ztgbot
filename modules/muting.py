@@ -20,7 +20,6 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
     target_user = None
-    username = None
     permission_required = "can_restrict_members"
 
     keyboard = [[
@@ -29,36 +28,39 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    if update.message.reply_to_message:
-        target_user = update.message.reply_to_message.from_user
-        username = target_user.username or target_user.first_name
-        if target_user.username:
-            username = "@" + username
-    else:
-        await update.message.reply_text(LANG["MTG_ERR_REP"])
-        return
+    if update.effective_chat.type in ["group", "supergroup"]:
 
-    if target_user:
-        if await is_bot(update, context, target_user.id):
-            await update.message.reply_text(LANG["MTG_ERR_SLF"])
-        elif await has_admin_permission(context, chat_id, user_id, permission_required):
-            if not await is_admin(update, context, target_user.id):
-                await update.message.reply_text(
-                    LANG["MTG_TIME"].format(user_id=target_user.id, username=username),
-                    reply_markup=reply_markup,
-                    parse_mode="HTML"
-                )
-            else:
-                await update.message.reply_text(LANG["MTG_ERR_ADM"])
+        if update.message.reply_to_message:
+            target_user = update.message.reply_to_message.from_user
+            fullname = target_user.full_name
         else:
-            await update.message.reply_text(
-                LANG["MTG_ERR_PRM"].format(permission_required=permission_required),
-                parse_mode="Markdown"
-            )
+            await update.message.reply_text(LANG["MTG_ERR_REP"])
+            return
 
-    context.chat_data["target_user"] = target_user
-    context.chat_data["username"] = username
-    context.chat_data["mute_dur"] = 0
+        if target_user:
+            if await is_bot(update, context, target_user.id):
+                await update.message.reply_text(LANG["MTG_ERR_SLF"])
+            elif await has_admin_permission(context, chat_id, user_id, permission_required):
+                if not await is_admin(update, context, target_user.id):
+                    await update.message.reply_text(
+                        LANG["MTG_TIME"].format(user_id=target_user.id, fullname=fullname),
+                        reply_markup=reply_markup,
+                        parse_mode="HTML"
+                    )
+                else:
+                    await update.message.reply_text(LANG["MTG_ERR_ADM"])
+            else:
+                await update.message.reply_text(
+                    LANG["MTG_ERR_PRM"].format(permission_required=permission_required),
+                    parse_mode="Markdown"
+                )
+
+        context.chat_data["target_user"] = target_user
+        context.chat_data["fullname"] = fullname
+        context.chat_data["mute_dur"] = 0
+
+    else:
+        await update.message.reply_text(LANG["ERR_PM"])
 
 @load_lang
 async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -67,59 +69,58 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
     target_user = None
-    username = None
     permission_required = "can_restrict_members"
 
-    if update.message.reply_to_message:
-        target_user = update.message.reply_to_message.from_user
-        username = target_user.username or target_user.first_name
-        if target_user.username:
-            username = "@" + username
-    else:
-        await update.message.reply_text(LANG["MTG_ERR_REP"])
-        return
+    if update.effective_chat.type in ["group", "supergroup"]:
+        if update.message.reply_to_message:
+            target_user = update.message.reply_to_message.from_user
+            fullname=target_user.first_name
+        else:
+            await update.message.reply_text(LANG["MTG_ERR_REP"])
+            return
 
-    if target_user:
-        if await is_bot(update, context, target_user.id):
-            await update.message.reply_text(LANG["MTG_ERR_UNMUTE_SLF"])
-        elif await has_admin_permission(context, chat_id, user_id, permission_required):
-            if not await has_user_restriction(context, chat_id, target_user.id, "can_send_messages"):
-                await update.message.reply_text(LANG["MTG_ERR_NOTMUTED"])
+        if target_user:
+            if await is_bot(update, context, target_user.id):
+                await update.message.reply_text(LANG["MTG_ERR_UNMUTE_SLF"])
+            elif await has_admin_permission(context, chat_id, user_id, permission_required):
+                if not await has_user_restriction(context, chat_id, target_user.id, "can_send_messages"):
+                    await update.message.reply_text(LANG["MTG_ERR_NOTMUTED"])
+                else:
+                    await update.message.reply_text(
+                        LANG["MTG_UNMUTED"].format(user_id=target_user.id, fullname=fullname),
+                        parse_mode="HTML"
+                    )
+                    await context.bot.restrict_chat_member(
+                        chat_id=chat_id,
+                        user_id=target_user.id,
+                        permissions=ChatPermissions(can_send_messages=True)
+                    )
             else:
                 await update.message.reply_text(
-                    LANG["MTG_UNMUTED"].format(user_id=target_user.id, username=username),
-                    parse_mode="HTML"
+                    LANG["MTG_ERR_PRM"].format(permission_required=permission_required),
+                    parse_mode="Markdown"
                 )
-                await context.bot.restrict_chat_member(
-                    chat_id=chat_id,
-                    user_id=target_user.id,
-                    permissions=ChatPermissions(can_send_messages=True)
-                )
-        else:
-            await update.message.reply_text(
-                LANG["MTG_ERR_PRM"].format(permission_required=permission_required),
-                parse_mode="Markdown"
-            )
 
-    context.chat_data["target_user"] = target_user
-    context.chat_data["username"] = username
-    context.chat_data["mute_dur"] = 0
+        context.chat_data["target_user"] = target_user
+        context.chat_data["fullname"] = fullname
+        context.chat_data["mute_dur"] = 0
+    else:
+        await update.message.reply_text(LANG["ERR_PM"])
 
 @load_lang
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     LANG = context.chat_data["LANG"]
 
     keyboard = [[
-        InlineKeyboardButton(LANG["MTG_KB_IDF"], callback_data="set_mute"),
+        InlineKeyboardButton(LANG["MTG_KB_DONE"], callback_data="set_mute"),
         InlineKeyboardButton(LANG["MTG_KB_PLS1"], callback_data="add_an_hr")
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     query = update.callback_query
-    await query.answer()
 
     target_user = context.chat_data.get("target_user")
-    username = context.chat_data.get("username")
+    fullname = context.chat_data.get("fullname")
 
     if not target_user:
         await query.edit_message_text(LANG["MTG_ERR_REP"])
@@ -140,7 +141,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text(
                 LANG["MTG_HRS"].format(
                     user_id=target_user.id,
-                    username=username,
+                    fullname=fullname,
                     hours=context.chat_data["mute_dur"]
                 ),
                 reply_markup=reply_markup,
@@ -155,7 +156,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await query.edit_message_text(
                     LANG["MTG_MUTED_HRS"].format(
                         user_id=target_user.id,
-                        username=username,
+                        fullname=fullname,
                         hours=context.chat_data["mute_dur"]
                     ),
                     parse_mode="HTML",
@@ -172,7 +173,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await query.edit_message_text(
                     LANG["MTG_MUTED"].format(
                         user_id=target_user.id,
-                        username=username
+                        fullname=fullname
                     ),
                     parse_mode="HTML",
                     reply_markup=unmute_markup
@@ -192,7 +193,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await query.edit_message_text(LANG["MTG_ERR_NOTMUTED"])
             else:
                 await query.edit_message_text(
-                    LANG["MTG_UNMUTED"].format(user_id=target_user_id, username=username),
+                    LANG["MTG_UNMUTED"].format(user_id=target_user_id, fullname=fullname),
                     parse_mode="HTML"
                 )
                 await context.bot.restrict_chat_member(
