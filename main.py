@@ -63,7 +63,6 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard.append(row)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-
     await update.message.reply_text(LANG["HP_MSG"], reply_markup=reply_markup)
 
 @load_lang
@@ -102,8 +101,11 @@ if __name__ == '__main__':
     # Run Flask in a separate thread
     threading.Thread(target=run_flask).start()
 
+    # Get token from environment
+    token = os.environ["BOT_TOKEN"]
+
     # Run Telegram bot
-    application = ApplicationBuilder().token('YOUR_TOKEN_HERE').build()
+    application = ApplicationBuilder().token(token).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help))
     application.add_handler(CallbackQueryHandler(help_button, pattern="^(help_module:.*|help_back)$"))
