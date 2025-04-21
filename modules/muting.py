@@ -132,7 +132,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     permission_required = "can_restrict_members"
     
 
-    hour_label = "hour" if context.chat_data["mute_dur"] == 2 else "hours"
+    hour_label = "hour" if context.chat_data["mute_dur"] == 0 else "hours"
     if query.data == "add_an_hr":
         if await has_admin_permission(context, chat.id, user.id, permission_required):
             context.chat_data["mute_dur"] += 1
