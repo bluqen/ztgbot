@@ -3,7 +3,7 @@
     "HP_MSG": "Hi, I’m Zuli, your friendly AI assistant!\n\nI’m here to make group management easy with smart tools like:\n\n- Command detection.\n- Antiflood protection.\n- Muting and unmuting users.\n- Admin features and more.\n\nNeed help or want to learn more? Tap a button below!\n\nWhether it’s commands, moderation, or anything else — I’ve got you covered. Let’s go!",
     "HP_404": "No help available for this module.",
     "MTG": "Muting",
-    "HP_MTG": "*Muting*\n\nQuick commands to silence those who need it.\n\n*Commands*\n\n/mute - Reply to a user's message to mute them.\n\n/unmute - Reply to a user's message to unmute them.\n\n*Examples*\n\n/mute @fullname - Mutes the user who sent the message.\n/unmute @fullname - Unmutes the user who sent the message.",
+    "HP_MTG": "*Muting*\n\nQuick commands to silence those who need it.\n\n*Commands*\n\n/mute - Reply to a user's message to mute them.\n\n/unmute - Reply to a user's message to unmute them.",
     "LNG": "Language",
     "HP_LNG": "*Language*\n\nThis module helps you set the language Zuli speaks in.\n\n*Commands*\n\n/setlang - Change the language for yourself or the group.\n\n*Examples*\n\n/setlang en - Sets the language to English.\n/setlang es - Sets the language to Spanish.",
     "MTG_KB_IDF": "Until unmuted",

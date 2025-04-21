@@ -25,7 +25,7 @@ async def greet_new_members(update: Update, context: ContextTypes.DEFAULT_TYPE):
         lastname = new_member.last_name
         groupname = update.effective_chat.full_name
         # Send the greeting message
-        await update.message.reply_text(greeting_message.format(fullname=fullname, firstname=firstname, username=username, id=id, lastname=lastname, groupname=groupname, groupid=group_id))
+        await update.message.reply_text(greeting_message.format(fullname=fullname, firstname=firstname, username=username, id=id, lastname=lastname, groupname=groupname, groupid=group_id), parse_mode="Markdown")
 
 # Create a farewell message when a member leaves
 @load_lang
