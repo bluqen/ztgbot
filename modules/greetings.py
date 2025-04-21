@@ -23,7 +23,7 @@ async def greet_new_members(update: Update, context: ContextTypes.DEFAULT_TYPE):
         username = new_member.username if new_member.username else new_member.first_name
         id = new_member.id
         lastname = new_member.last_name
-        groupname = update.effective_chat.full_name
+        groupname = update.effective_chat.title
         # Send the greeting message
         await update.message.reply_text(greeting_message.format(fullname=fullname, firstname=firstname, username=username, id=id, lastname=lastname, groupname=groupname, groupid=group_id), parse_mode="Markdown")
 
@@ -43,7 +43,7 @@ async def farewell_left_member(update: Update, context: ContextTypes.DEFAULT_TYP
     username = left_member.username if left_member.username else left_member.first_name
     id = left_member.id
     lastname = left_member.last_name
-    groupname = update.effective_chat.full_name
+    groupname = update.effective_chat.title
     # Send the greeting message
     await update.message.reply_text(farewell_message.format(fullname=fullname, firstname=firstname, username=username, id=id, lastname=lastname, groupname=groupname, groupid=group_id))
 
