@@ -130,7 +130,9 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = query.from_user
     chat = query.message.chat
     permission_required = "can_restrict_members"
+    
 
+    hour_label = "hour" if context.chat_data["mute_dur"] == 1 else "hours"
     if query.data == "add_an_hr":
         if await has_admin_permission(context, chat.id, user.id, permission_required):
             context.chat_data["mute_dur"] += 1
@@ -138,7 +140,8 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 LANG["MTG_HRS"].format(
                     user_id=target_user.id,
                     fullname=fullname,
-                    hours=context.chat_data["mute_dur"]
+                    hours=context.chat_data["mute_dur"],
+                    hour_label=hour_label
                 ),
                 reply_markup=reply_markup,
                 parse_mode="HTML"
@@ -153,7 +156,8 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     LANG["MTG_MUTED_HRS"].format(
                         user_id=target_user.id,
                         fullname=fullname,
-                        hours=context.chat_data["mute_dur"]
+                        hours=context.chat_data["mute_dur"],
+                        hour_label=hour_label
                     ),
                     parse_mode="HTML",
                     reply_markup=unmute_markup
