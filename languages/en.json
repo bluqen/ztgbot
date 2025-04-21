@@ -9,7 +9,7 @@
     "MTG_KB_IDF": "Until unmuted",
     "MTG_KB_PLS1": "+1 hour",
     "MTG_KB_DONE": "Done",
-    "MTG_ERR_REP": "Reply to the user's message with /mute.\n*Example*: `Reply to @username's message and type /mute`.",
+    "MTG_ERR_REP": "You'll have to reply to the person's message with the command.",
     "MTG_ERR_SLF": "I won’t mute myself, thank you.",
     "MTG_TIME": "Mute <a href='tg://user?id={user_id}'>{fullname}</a> for how long?",
     "MTG_ERR_ADM": "I can’t mute an admin, sorry.",
@@ -17,7 +17,7 @@
     "MTG_ERR_UNMUTE_SLF": "I probably wasn’t muted if you’re seeing this.",
     "MTG_ERR_NOTMUTED": "That user isn’t muted.",
     "MTG_KB_UNMUTE": "Unmute",
-    "MTG_HRS": "Mute <a href='tg://user?id={user_id}'>{fullname}</a> for {hours} hours?",
+    "MTG_HRS": "Mute <a href='tg://user?id={user_id}'>{fullname}</a> for {hours} {'hour' if hours == 1 else 'hours'}?",
     "MTG_MUTED_HRS": "Muted <a href='tg://user?id={user_id}'>{fullname}</a> for {hours} hours.",
     "MTG_MUTED": "Muted <a href='tg://user?id={user_id}'>{fullname}</a>!",
     "MTG_UNMUTED": "Unmuted <a href='tg://user?id={user_id}'>{fullname}!</a>",
@@ -25,5 +25,8 @@
     "HP_GRT": "*Greeting*\n\nWelcome new members or say goodbye to the ones leaving.\n\n*Commands*\n\n/setgreeting `{greeting}` - Set the group’s welcome message.\n/setfarewell `{farewell}` - Set the group’s farewell message.\n\n*Examples*\n\n/setgreeting Welcome, {fullname}! Glad you're here!\n/setfarewell Goodbye, {fullname}! We’ll miss you!",
     "GRT_GRT_MSG": "Welcome to the group, {fullname}! Glad to have you here.",
     "GRT_FRW_MSG": "Goodbye, {fullname}.",
-    "ERR_PM": "You need to be in a group to use this command."
+    "ERR_PM": "You need to be in a group to use this command.",
+    "LNG_SET": "Language set to {language_full}",
+    "LNG_ERR_404": "Language `{lang_code}` is not supported.\nPlease choose from: {available}",
+    "LNG_ERR_ARGS": "You'll have to use it like this; \n\n/setlang <language_code>\n\nAvailable languages:  {available}"
 }

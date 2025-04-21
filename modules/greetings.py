@@ -3,7 +3,8 @@ from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters
 
 from languages import load_lang
 
-from db import get_group, add_group # Directly interact with the database to get group data
+from db import get_group, add_group
+from utils.chat import group_only
 
 # Create a greeting message when new members join
 @load_lang
@@ -50,41 +51,40 @@ async def farewell_left_member(update: Update, context: ContextTypes.DEFAULT_TYP
 greet_new_member_handler = MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, greet_new_members)
 farewell_member_handler = MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, farewell_left_member)
 
+
+@group_only
 @load_lang
 async def set_greeting(update: Update, context: ContextTypes.DEFAULT_TYPE):
     LANG = context.chat_data["LANG"]
-    if update.effective_chat.type in ["group", "supergroup"]:
-        group_id = update.effective_chat.id
-        if context.args:
-            greeting_message = " ".join(context.args)
-            # Save the new greeting message to the database
-            group_data = await get_group(group_id)
-            other_settings = group_data.get("other_settings", {})
-            other_settings["greeting_message"] = greeting_message
-            await add_group(group_id, other_settings=other_settings)
-            await update.message.reply_text(f"Group greeting message updated to: {greeting_message}")
-        else:
-            await update.message.reply_text("Please provide a greeting message after the command.")
-    else:
-        await update.message.reply_text(LANG["ERR_PM"])
 
+    group_id = update.effective_chat.id
+    if context.args:
+        greeting_message = " ".join(context.args)
+        # Save the new greeting message to the database
+        group_data = await get_group(group_id)
+        other_settings = group_data.get("other_settings", {})
+        other_settings["greeting_message"] = greeting_message
+        await add_group(group_id, other_settings=other_settings)
+        await update.message.reply_text(f"Group greeting message updated to: {greeting_message}")
+    else:
+        await update.message.reply_text("Please provide a greeting message after the command.")
+
+@group_only
 @load_lang
 async def set_farewell(update: Update, context: ContextTypes.DEFAULT_TYPE):
     LANG = context.chat_data["LANG"]
-    if update.effective_chat.type in ["group", "supergroup"]:
-        group_id = update.effective_chat.id
-        if context.args:
-            farewell_message = " ".join(context.args)
-            # Save the new greeting message to the database
-            group_data = await get_group(group_id)
-            other_settings = group_data.get("other_settings", {})
-            other_settings["farewell_message"] = farewell_message
-            await add_group(group_id, other_settings=other_settings)
-            await update.message.reply_text(f"Group farewell message updated to: {farewell_message}")
-        else:
-            await update.message.reply_text("Please provide a farewell message after the command.")
+    
+    group_id = update.effective_chat.id
+    if context.args:
+        farewell_message = " ".join(context.args)
+        # Save the new greeting message to the database
+        group_data = await get_group(group_id)
+        other_settings = group_data.get("other_settings", {})
+        other_settings["farewell_message"] = farewell_message
+        await add_group(group_id, other_settings=other_settings)
+        await update.message.reply_text(f"Group farewell message updated to: {farewell_message}")
     else:
-        await update.message.reply_text(LANG["ERR_PM"])
+        await update.message.reply_text("Please provide a farewell message after the command.")
 
 # Add the handler for the set_greeting command
 set_greeting_handler = CommandHandler("setgreeting", set_greeting)

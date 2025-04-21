@@ -4,7 +4,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Callb
 
 from datetime import datetime, timedelta
 
-from utils.chat import is_admin, is_bot, has_admin_permission, has_user_restriction
+from utils.chat import is_admin, is_bot, has_admin_permission, has_user_restriction, group_only
 
 from languages import load_language, load_lang
 
@@ -13,6 +13,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+@group_only
 @load_lang
 async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     LANG = context.chat_data["LANG"]
@@ -28,39 +29,34 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    if update.effective_chat.type in ["group", "supergroup"]:
-
-        if update.message.reply_to_message:
-            target_user = update.message.reply_to_message.from_user
-            fullname = target_user.full_name
-        else:
-            await update.message.reply_text(LANG["MTG_ERR_REP"])
-            return
-
-        if target_user:
-            if await is_bot(update, context, target_user.id):
-                await update.message.reply_text(LANG["MTG_ERR_SLF"])
-            elif await has_admin_permission(context, chat_id, user_id, permission_required):
-                if not await is_admin(update, context, target_user.id):
-                    await update.message.reply_text(
-                        LANG["MTG_TIME"].format(user_id=target_user.id, fullname=fullname),
-                        reply_markup=reply_markup,
-                        parse_mode="HTML"
-                    )
-                else:
-                    await update.message.reply_text(LANG["MTG_ERR_ADM"])
-            else:
-                await update.message.reply_text(
-                    LANG["MTG_ERR_PRM"].format(permission_required=permission_required),
-                    parse_mode="Markdown"
-                )
-
-        context.chat_data["target_user"] = target_user
-        context.chat_data["fullname"] = fullname
-        context.chat_data["mute_dur"] = 0
-
+    if update.message.reply_to_message:
+        target_user = update.message.reply_to_message.from_user
+        fullname = target_user.full_name
     else:
-        await update.message.reply_text(LANG["ERR_PM"])
+        await update.message.reply_text(LANG["MTG_ERR_REP"], parse_mode="Markdown")
+        return
+
+    if target_user:
+        if await is_bot(update, context, target_user.id):
+            await update.message.reply_text(LANG["MTG_ERR_SLF"])
+        elif await has_admin_permission(context, chat_id, user_id, permission_required):
+            if not await is_admin(update, context, target_user.id):
+                await update.message.reply_text(
+                    LANG["MTG_TIME"].format(user_id=target_user.id, fullname=fullname),
+                    reply_markup=reply_markup,
+                    parse_mode="HTML"
+                )
+            else:
+                await update.message.reply_text(LANG["MTG_ERR_ADM"])
+        else:
+            await update.message.reply_text(
+                LANG["MTG_ERR_PRM"].format(permission_required=permission_required),
+                parse_mode="Markdown"
+            )
+
+    context.chat_data["target_user"] = target_user
+    context.chat_data["fullname"] = fullname
+    context.chat_data["mute_dur"] = 0
 
 @load_lang
 async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):

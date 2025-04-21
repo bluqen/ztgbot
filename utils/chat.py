@@ -1,5 +1,21 @@
-from telegram import ChatMemberAdministrator, ChatMemberOwner, ChatMemberRestricted
+from telegram import Update, ChatMemberAdministrator, ChatMemberOwner, ChatMemberRestricted
 from telegram.ext import ContextTypes
+
+from functools import wraps
+from languages import load_lang
+
+def group_only(func):
+    @wraps(func)
+    @load_lang
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        LANG = context.chat_data["LANG"]
+        chat_type = update.effective_chat.type
+        if chat_type not in ['group', 'supergroup']:
+            await update.effective_message.reply_text(LANG["ERR_PM"])
+            return
+        return await func(update, context, *args, **kwargs)
+    return wrapper
+
 
 async def has_admin_permission(context: ContextTypes.DEFAULT_TYPE, chat_id: int, user_id: int, permission: str) -> bool:
     try:
