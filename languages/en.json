@@ -28,5 +28,6 @@
     "ERR_PM": "You need to be in a group to use this command.",
     "LNG_SET": "Language set to {language_full}",
     "LNG_ERR_404": "Language `{lang_code}` is not supported.\nPlease choose from: {available}",
-    "LNG_ERR_ARGS": "You'll have to use it like this; \n\n/setlang <language_code>\n\nAvailable languages:  {available}"
+    "LNG_ERR_ARGS": "You'll have to use it like this; \n\n/setlang <language_code>\n\nAvailable languages:  {available}",
+    "ERR_ADM": "You must be an admin to use this command."
 }

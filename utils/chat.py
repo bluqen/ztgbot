@@ -36,6 +36,31 @@ async def has_admin_permission(context: ContextTypes.DEFAULT_TYPE, chat_id: int,
         print(f"Error checking permission: {e}")
         return False
 
+def only_admin(func):
+    @wraps(func)
+    @load_lang
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        LANG = context.chat_data["LANG"]
+        user_id = update.effective_user.id
+        chat = update.effective_chat
+
+        # Only apply in groups/supergroups
+        if chat.type not in ["group", "supergroup"]:
+            return
+
+        # Get chat admins
+        chat_administrators = await context.bot.get_chat_administrators(chat.id)
+        admin_ids = [admin.user.id for admin in chat_administrators]
+
+        # Check if the user is an admin
+        if user_id not in admin_ids:
+            await update.message.reply_text(LANG["ERR_ADM"])
+            return
+
+        return await func(update, context, *args, **kwargs)
+
+    return wrapper
+
 async def is_admin(update, context, user_id=None):
     chat_id = update.effective_chat.id
     user_id = user_id or update.effective_user.id

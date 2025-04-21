@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes, CommandHandler
 
-from db import add_user, add_group
+from db import add_user, add_group, get_user, get_group
 
 from languages import load_lang
 
@@ -38,7 +38,9 @@ async def setlang(update: Update, context: ContextTypes.DEFAULT_TYPE):
         username = update.message.from_user.username
 
         # Save the new language for the user
-        await add_user(user_id, username, lang_code)
+        user_data = await get_user(user_id)
+        other_settings = user_data.get("other_settings", {})
+        await add_user(user_id, username, lang_code, other_settings)
 
         context.user_data["lang"] = lang_code
 
@@ -46,9 +48,12 @@ async def setlang(update: Update, context: ContextTypes.DEFAULT_TYPE):
         group_id = update.effective_chat.id
 
         # Save the new language for the group
-        await add_group(group_id, lang_code)
+        group_data = await get_group(group_id)
+        other_settings = group_data.get("other_settings", {})
+        await add_group(group_id, lang_code, other_settings)
         context.chat_data[f"{update.effective_chat.id}_lang"] = lang_code
 
+    LANG = context.chat_data["LANG"]
     lf = language_full[lang_code.lower()]
     await update.message.reply_text(
         LANG["LNG_SET"].format(language_full=lf), parse_mode="Markdown"

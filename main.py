@@ -9,6 +9,8 @@ from telegram.constants import ParseMode
 
 from languages import load_lang
 
+from db import add_user, add_group, get_user, get_group
+
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
@@ -46,6 +48,19 @@ modules, handlers = load_modules_and_handlers()
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     LANG = context.chat_data["LANG"]
     await context.bot.send_message(chat_id=update.effective_chat.id, text=LANG["ST_MSG"], parse_mode="Markdown")
+    if update.effective_chat.type in ["group", "supergroup"]:
+        group_id = update.effective_chat.id
+        group_data = await get_group(group_id)
+        language = group_data.get("language", "en")
+        other_settings = group_data.get("other_settings", {})
+        await add_group(group_id, language, other_settings)
+    elif update.effective_chat.type == "private":
+        user_id = update.effective_chat.id
+        username = update.effective_user.username
+        user_data = await get_user(user_id, username)
+        language = user_data.get("language", "en")
+        other_settings = user_data.get("other_settings", {})
+        await add_user(user_id, username, language, other_settings)
 
 @load_lang
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -102,8 +117,8 @@ if __name__ == '__main__':
     threading.Thread(target=run_flask).start()
 
     # Get token from environment
-    token = os.environ["BOT_TOKEN"]
-
+    #token = os.environ["BOT_TOKEN"]
+    token = "5986827967:AAERzTN7sckAZmOO1KeJH5iPZWsr0aQvNo8"
     # Run Telegram bot
     application = ApplicationBuilder().token(token).build()
     application.add_handler(CommandHandler("start", start))

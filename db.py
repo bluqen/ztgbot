@@ -9,21 +9,21 @@ db = client["zulibot"]
 users_collection = db["users"]
 groups_collection = db["groups"]  # Separate collection for groups
 
-async def add_user(user_id, username, language="en", other_data=None):
+async def add_user(user_id, username, language="en", other_settings=None):
     """
     Adds or updates a user in the database.
     """
-    if other_data is None:
-        other_data = {}
+    if other_settings is None:
+        other_settings = {}
 
     await users_collection.update_one(
         {"user_id": user_id},
-        {"$set": {"username": username, "language": language, "other_data": other_data}},
+        {"$set": {"username": username, "language": language, "other_settings": other_settings}},
         upsert=True
     )
 
 # Function to get user data (including language and other information)
-async def get_user(user_id):
+async def get_user(user_id, username=None):
     """
     Retrieves full user data, including language and other data.
     """
@@ -34,14 +34,14 @@ async def get_user(user_id):
             "user_id": user.get("user_id"),
             "username": user.get("username"),
             "language": user.get("language", "en"),  # Default to 'en'
-            "other_data": user.get("other_data", {})
+            "other_settings": user.get("other_settings", {})
         }
 
     return {
         "user_id": user_id,
-        "username": None,
+        "username": username,
         "language": "en",  # Default to 'en' for new users
-        "other_data": {}
+        "other_settings": {}
     }
 
 # Function to get group data (including language and other information)

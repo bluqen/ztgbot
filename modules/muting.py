@@ -58,6 +58,7 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.chat_data["fullname"] = fullname
     context.chat_data["mute_dur"] = 0
 
+@group_only
 @load_lang
 async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     LANG = context.chat_data["LANG"]
