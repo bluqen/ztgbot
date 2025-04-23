@@ -13,7 +13,7 @@
     "MTG_ERR_SLF": "I won’t mute myself, thank you.",
     "MTG_TIME": "Mute <a href='tg://user?id={user_id}'>{fullname}</a> for how long?",
     "MTG_ERR_ADM": "I can’t mute an admin, sorry.",
-    "MTG_ERR_PRM": "If you can't do it, I can't.\nYou need the `{permission_required}` permission.",
+    "ERR_PRM": "If you can't do it, I can't.\nYou need the `{permission_required}` permission.",
     "MTG_ERR_UNMUTE_SLF": "I probably wasn’t muted if you’re seeing this.",
     "MTG_ERR_NOTMUTED": "That user isn’t muted.",
     "MTG_KB_UNMUTE": "Unmute",
@@ -29,5 +29,15 @@
     "LNG_SET": "Language set to {language_full}",
     "LNG_ERR_404": "Language `{lang_code}` is not supported.\nPlease choose from: {available}",
     "LNG_ERR_ARGS": "You'll have to use it like this; \n\n/setlang <language_code>\n\nAvailable languages:  {available}",
-    "ERR_ADM": "You must be an admin to use this command."
+    "ERR_ADM": "You must be an admin to use this command.",
+    "ERR_REP": "You'll have to reply to someone's message with this command.",
+    "ERR_REP_GPT": "You'll have to reply to someone's message with this",
+    "RST_ERR_404": "Huh, couldn't find the user you specified",
+    "KCK_ERR_SLF": "Why on Earth would I kick myself now?",
+    "KCK_ERR_ADM": "It’s nice you think I can kick an admin...",
+    "ERR_BOT_ADM": "I need to be an admin to do that.",
+    "ERR_BOT_PRM": "I need the following permission(s) : ` {perms} `",
+    "KCK_USER": "{firstname} has been kicked!",
+    "KCK_ERR_ERR": "Darn, couldn't kick {firstname}",
+    "RST": "Restraints"
 }

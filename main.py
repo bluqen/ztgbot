@@ -4,12 +4,16 @@ import logging
 import threading
 from flask import Flask
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 from telegram.constants import ParseMode
 
 from languages import load_lang
 
+from modules.restraints import handle_gpt
+
 from db import add_user, add_group, get_user, get_group
+
+from utils.gpt import generate_gpt_reply, extract_action
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -111,6 +115,77 @@ async def help_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(LANG["HP_MSG"], reply_markup=reply_markup)
 
+async def gpt_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message
+    if not message or not message.text:
+        return
+
+    if message.from_user.is_bot or message.text.startswith("/"):
+        return
+
+    text = message.text.strip()
+
+    # Save user message for semantic tracking
+    recent = context.chat_data.setdefault("recent_messages", [])
+    recent.append({
+        "user_id": message.from_user.id,
+        "username": message.from_user.username or "",
+        "name": message.from_user.full_name,
+        "text": text
+    })
+    if len(recent) > 20:
+        recent[:] = recent[-20:]
+
+    # Save to GPT conversation history
+    history = context.chat_data.setdefault("gpt_history", [])
+    history.append({"role": "user", "content": text})
+    if len(history) > 10:
+        history[:] = history[-10:]
+
+    # When to respond
+    lower_text = text.lower()
+    should_respond = (
+        "zuli" in lower_text or 
+        lower_text.startswith("what do you think") or 
+        text.endswith("?")
+    )
+
+    if not should_respond:
+        return
+
+    # Check for moderation command
+    mod_action = await extract_action(text)
+    if mod_action in ["mute", "unmute", "kick", "ban"]:
+        await handle_gpt(update, context)
+        return
+
+    # Identity + recent context
+    recent_messages_summary = "\n".join(
+        f"{msg['name']} [ID: {msg['user_id']}] (@{msg['username'] or 'no_username'}): {msg['text']}"
+        for msg in recent[-10:]
+    )
+
+    system_message = {
+        "role": "system",
+        "content": (
+            "You are Zuli, a sarcastic, rude, but mandatorily helpful Telegram bot(because you manage groups). "
+            "Use the following recent messages to help understand the current message context or references. !IMPORTANT - do not mix up users, and perfectly return user info according to recent messages. You should also perfectly get exactly who talked about something.\n\n" +
+            "And !IMPORTANTLY perfectly return user's id's when asked" +
+            "Recent Messages:\n" +
+            recent_messages_summary +
+            "\n\nDo not moderate unless clearly asked. You only respond if mentioned or asked a question. Be sassy."
+        )
+    }
+
+    messages = [system_message] + history
+    reply = await generate_gpt_reply(messages)
+
+    if reply:
+        history.append({"role": "assistant", "content": reply})
+        if len(history) > 10:
+            history[:] = history[-10:]
+        await message.reply_text(reply)
+
 # --- Run bot + server ---
 if __name__ == '__main__':
     # Run Flask in a separate thread
@@ -123,6 +198,8 @@ if __name__ == '__main__':
     application = ApplicationBuilder().token(token).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help))
+    gpt_reply_handler = MessageHandler(filters.TEXT & filters.ChatType.GROUPS, gpt_reply)
+    application.add_handler(gpt_reply_handler)  
     application.add_handler(CallbackQueryHandler(help_button, pattern="^(help_module:.*|help_back)$"))
     for handler in handlers:
         application.add_handler(handler)

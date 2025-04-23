@@ -97,3 +97,35 @@ async def has_user_restriction(
     except Exception as e:
         print(f"Error checking restriction: {e}")
         return False
+    
+def bot_admin_required(required_perms=None):
+    required_perms = required_perms or []
+
+    def decorator(func):
+        @wraps(func)
+        @load_lang
+        async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+            LANG = context.chat_data["LANG"]
+            chat = update.effective_chat
+            bot = context.bot
+
+            bot_member = await bot.get_chat_member(chat_id=chat.id, user_id=bot.id)
+
+            # Check if bot is admin
+            if bot_member.status not in ["administrator", "creator"]:
+                await update.message.reply_text(LANG["ERR_BOT_ADM"])
+                return
+
+            # Check required permissions
+            missing_perms = [
+                perm for perm in required_perms
+                if not getattr(bot_member, perm, False)
+            ]
+
+            if missing_perms:
+                await update.message.reply_text(LANG["ERR_BOT_PRM"].format(perms=', '.join(missing_perms)), parse_mode="Markdown")
+                return
+
+            return await func(update, context, *args, **kwargs)
+        return wrapper
+    return decorator
