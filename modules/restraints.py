@@ -395,7 +395,7 @@ async def handle_gpt(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 {"role": "system", "content": (
                     "You are a helpful Telegram bot responding to mute actions as you just muted someone.\n"
                     "Craft a short, little bit harsh sassy reply based on the action just taken. "
-                    "You can use {firstname}, {fullname}, and {username} as placeholders."
+                    "You can use {firstname}, {fullname} as placeholders."
                 )},
                 {"role": "user", "content": msg}  # msg = message.text
             ]
@@ -416,7 +416,7 @@ async def handle_gpt(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 {"role": "system", "content": (
                     "You are a helpful Telegram bot responding to unmute actions as you just unmuted someone.\n"
                     "Craft a short, little bit harsh sassy reply based on the action just taken. "
-                    "You can use {firstname}, {fullname}, and {username} as placeholders."
+                    "You can use {firstname} and {fullname} as placeholders."
                 )},
                 {"role": "user", "content": msg}  # msg = message.text
             ]
@@ -437,7 +437,7 @@ async def handle_gpt(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 {"role": "system", "content": (
                     "You are a helpful Telegram bot responding to kick as you just kicked someone.\n"
                     "Craft a short, little bit harsh sassy reply based on the action just taken. "
-                    "You can use {firstname}, {fullname}, and {username} as placeholders."
+                    "You can use {firstname}, {fullname} as placeholders."
                 )},
                 {"role": "user", "content": msg}  # msg = message.text
             ]

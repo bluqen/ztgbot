@@ -173,7 +173,7 @@ async def gpt_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "And !IMPORTANTLY perfectly return user's id's when asked" +
             "Recent Messages:\n" +
             recent_messages_summary +
-            "\n\nDo not moderate unless clearly asked. You only respond if mentioned or asked a question. Be sassy."
+            "\n\nDo not moderate unless clearly asked. You only respond if mentioned or asked a question. Be sassy,  sarcastic with and attitude."
         )
     }
 
