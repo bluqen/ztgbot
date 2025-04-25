@@ -38,10 +38,10 @@ async def raw_mute(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id):
             if not await is_admin(update, context, target_user.id):
                 await context.bot.restrict_chat_member(chat_id=chat_id, user_id=target_user.id, permissions=ChatPermissions(can_send_messages=False))
                 happened = True
-                """await update.message.reply_text(LANG["MTG_MUTED"].format(
+                await update.message.reply_text(await tweak_reply(LANG["MTG_MUTED"].format(
                         user_id=target_user.id,
-                        fullname=fullname
-                    ))"""
+                        fullname=fullname), 1
+                    ))
             else:
                 await update.message.reply_text(await tweak_reply(LANG["MTG_ERR_ADM"]))
         else:
@@ -73,9 +73,9 @@ async def raw_unmute(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id
             await update.message.reply_text(await tweak_reply(LANG["MTG_ERR_UNMUTE_SLF"]))
         elif await has_admin_permission(context, chat_id, update.effective_user.id, permission_required):
             if not await has_user_restriction(context, chat_id, target_user.id, "can_send_messages"):
-                await update.message.reply_text(await tweak_reply(LANG["MTG_ERR_NOTMUTED"]))
+                await update.message.reply_text(await tweak_reply(LANG["MTG_ERR_NOTMUTED"], 2))
             else:
-                # await update.message.reply_text(LANG["MTG_UNMUTED"].format(user_id=target_user.id, fullname=fullname),parse_mode="HTML")
+                await update.message.reply_text(await tweak_reply(LANG["MTG_UNMUTED"].format(user_id=target_user.id, fullname=fullname), 1),parse_mode="HTML")
                 await context.bot.restrict_chat_member(
                     chat_id=chat_id,
                     user_id=target_user.id,
@@ -84,7 +84,7 @@ async def raw_unmute(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id
                 happened = True
         else:
             await update.message.reply_text(
-                await tweak_reply(LANG["ERR_PRM"].format(permission_required=permission_required)),
+                await tweak_reply(LANG["ERR_PRM"].format(permission_required=permission_required), 1),
                 parse_mode="Markdown"
             )
     return happened
@@ -310,7 +310,7 @@ async def raw_kick(update: Update, context: ContextTypes.DEFAULT_TYPE, user_id):
                     await context.bot.ban_chat_member(chat_id, target_user.id)
                     await context.bot.unban_chat_member(chat_id, target_user.id)
                     happened = True
-                    # await update.message.reply_text(LANG["KCK_USER"].format(firstname=firstname))
+                    await update.message.reply_text(await tweak_reply(LANG["KCK_USER"].format(firstname=firstname), 1))
                 except Exception:
                     await update.message.reply_text(await tweak_reply(LANG["KCK_ERR_ERR"].format(firstname=firstname)))
                     return
@@ -363,29 +363,21 @@ async def kick(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
 @load_lang
-async def handle_gpt(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_gpt(update: Update, context: ContextTypes.DEFAULT_TYPE, action="none"):
     LANG = context.chat_data["LANG"]
     print("[Zuli GPT handler triggered]")
     msg = update.message.text.lower()
 
     # Check if it looks like a Zuli command
-    if "zuli" not in msg:
-        return
-
-    result = await extract_action(msg)
-    if not result:
-        return
-
-    action = result
 
     # Only proceed if message is a reply
     if not update.message.reply_to_message:
-        await update.message.reply_text(LANG["ERR_REP_GPT"])
+        await update.message.reply_text(await tweak_reply(LANG["ERR_REP_GPT"]))
         return
 
     target_user = update.message.reply_to_message.from_user
     if not target_user:
-        await update.message.reply_text(LANG["RST_ERR_404"])
+        await update.message.reply_text(await tweak_reply(LANG["RST_ERR_404"]))
         return
 
     if action == "mute":
@@ -407,7 +399,7 @@ async def handle_gpt(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     fullname=target_user.full_name,
                     username=f"@{target_user.username}" if target_user.username else target_user.first_name
                 )
-                await update.message.reply_text(reply)
+                # await update.message.reply_text(reply)
     
     elif action == "unmute":
         happened = await raw_unmute(update, context, target_user.id)
@@ -428,7 +420,7 @@ async def handle_gpt(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     fullname=target_user.full_name,
                     username=f"@{target_user.username}" if target_user.username else target_user.first_name
                 )
-                await update.message.reply_text(reply)
+                # await update.message.reply_text(reply)
     
     elif action == "kick":
         happened = await raw_kick(update, context, target_user.id)
@@ -449,7 +441,7 @@ async def handle_gpt(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     fullname=target_user.full_name,
                     username=f"@{target_user.username}" if target_user.username else target_user.first_name
                 )
-                await update.message.reply_text(reply)
+                # await update.message.reply_text(reply)
 
 mute_handler = CommandHandler("mute", mute)
 mute_button_handler = CallbackQueryHandler(button, pattern="^(add_an_hr|set_mute|unmute:.*)$")
