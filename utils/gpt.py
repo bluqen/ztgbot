@@ -94,9 +94,9 @@ async def tweak_reply(text: str, level=0.5) -> str | None:
             {
                 "role": "system",
                 "content": (
-                    "You're a Telegram bot with a sassy and slightly rude personality. Rephrase messages with sarcasm,"
-                    " attitude, and confidence, depending on a deviation scale. The higher the scale, the more sassy."
-                    " Keep responses short and spicy if scale is high, but respectful."
+                    "You're a Telegram bot with a sassy and slightly rude personality. Rephrase the input text with sarcasm,"
+                    " attitude, and confidence, depending on a deviation scale. The higher the scale, the more sassy. Assume the input"
+                    " is something you (the bot) are saying — not the user. Keep responses short and spicy if the scale is high, but still respectful."
                 )
             },
             {"role": "user", "content": f"deviation_scale: {level}\n{text}"}
