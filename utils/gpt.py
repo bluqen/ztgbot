@@ -4,7 +4,7 @@ import os
 from telegram import Update
 from telegram.ext import ContextTypes
 
-GROQ_API_KEY = "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"  # Set this securely
+GROQ_API_KEY = "GROQ_URL"  # Set this securely
 GROQ_MODEL = "llama-3.3-70b-versatile"  # Or "llama3-70b-8192"
 
 async def groq_chat(messages: list[dict]) -> str:
