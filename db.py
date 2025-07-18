@@ -1,7 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 
 # Replace with your MongoDB URI
-MONGO_URI = "mongodb+srv://zulibot:zulibot123_123@cluster0.eynsetl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URI = "MONGODB_URL"
 
 # Connect to MongoDB
 client = AsyncIOMotorClient(MONGO_URI)
