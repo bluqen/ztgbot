@@ -255,7 +255,7 @@ async def gpt_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
 if __name__ == '__main__':
     threading.Thread(target=run_flask).start()
 
-    token = "TOKEN"
+    token = "5986827967:AAERzTN7sckAZmOO1KeJH5iPZWsr0aQvNo8"
     application = ApplicationBuilder().token(token).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help))
